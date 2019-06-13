@@ -7,7 +7,7 @@
 
 - Using Google Oauth 2.0 as a user registration and authentication system.
 
-- Logged-in users can add, edit and delete books.
+- Logged-in users can add, edit and delete their books.
 
 ## Prerequisites
 
