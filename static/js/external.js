@@ -16,14 +16,3 @@ document.addEventListener("DOMContentLoaded", function(event) {
   if (submitButton)
     changeBookTitleHandler()
 });
-
-message = document.getElementsByClassName('li.messages')
-
-
-
-$(document).ready(function () {
-  setTimeout(function () {
-      $('#message').hide();
-  }, 3000);
-});
-

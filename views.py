@@ -21,9 +21,9 @@ import random
 import string
 import os
 
+# connect to database library.db and create database session
 engine = create_engine('sqlite:///library.db',
                        connect_args={'check_same_thread': False})
-
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -81,9 +81,16 @@ def oauth2callback():
     login_session['credentials'] = credentials_to_dict(credentials)
     return redirect(url_for('showLibrary'))
 
-# log out
 @app.route('/revoke')
 def revoke():
+    """
+    revoke: log out by revoking the access credentials
+    # thus removing access permission of the app
+    Returns:
+        either returns redirect to /clear for clearing login session
+        # or error message when login credentials do not exist or connection
+        # to google.oauth2 cannot be established
+    """
     if 'credentials' not in login_session:
         return ('You need to <a href="/authorize">authorize</a> before ' +
                 'testing the code to revoke credentials.')
@@ -110,10 +117,21 @@ def clear_credentials():
         login_session.clear()
     return redirect(url_for('showLibrary'))
 
-# display main page
 @app.route('/')
 @app.route('/library')
 def showLibrary():
+    """
+    showLibrary: display main page with all categories and recently added books
+
+    Returns:
+        return library.html rendered by render_template
+        with categories and recent_books arrays
+
+        for authorized user requests user data from login_credentials,
+        creates user  if first time login
+        writes user information into login_session and includes user as arg
+        with edit buttons
+    """
 
     categories = session.query(Category).all()
     recentBooks = session.query(Book).order_by(
@@ -159,10 +177,10 @@ def showLibrary():
             user=user,
             page_title=pageTitle)
 
-# User Helper Functions
-
 
 def createUser(login_session):
+    # User Helper Functions used by showBooks to create user
+
     newUser = User(
         name=login_session['username'],
         email=login_session['email'],
@@ -175,11 +193,14 @@ def createUser(login_session):
 
 
 def getUserInfo(user_id):
+    # user helper Functions used by showBooks to create user
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
 
 def getUserID(email):
+    # user helper functions used by showBooks to create user
+
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
@@ -189,6 +210,16 @@ def getUserID(email):
 
 @app.route('/library/<int:category_id>/books')
 def showBooksForCategory(category_id):
+    """
+    showBooksForCategory: displays books for a certain category
+    Args:
+        category_id (data type: int): the id of the category
+            the books will be displayed
+    Returns:
+         return books.html rendered by render_template
+         either without user specific args (user_books and user)
+         or - if user is logged in - with  user specific args
+    """
     category = session.query(Category).filter_by(id=category_id).one()
     booksForCategory = session.query(Book).filter_by(
         category_id=category_id).all()
@@ -217,6 +248,18 @@ def showBooksForCategory(category_id):
 
 @app.route('/library/<int:category_id>/<int:book_id>')
 def showBook(category_id, book_id):
+    """
+    showBook: displays information about book
+    Args:
+        category_id (data type: int): the id of the category
+            the book will be displayed
+        book_id (data type: int): the id of the book
+            to be displayed
+    Returns:
+         return book.html rendered by render_template
+         either without user specific args (user)
+         or - if user is logged in - with  user specific args
+    """
     book = session.query(Book).filter_by(book_id=book_id).one()
     category = session.query(Category).filter_by(id=category_id).one()
     pageTitle = book.title
@@ -241,6 +284,21 @@ def showBook(category_id, book_id):
 
 @app.route('/library/add_book', methods=['GET', 'POST'])
 def addBook():
+    """
+    addBook: displays a form to add a new book
+        or adds a new book to the library and ridirects to library
+    Returns:
+        1: user not logged in, redirect to login page
+
+        2: if called from add_book.html (clicked on submit button)
+            write new book to database with the values from the form
+            redirect to library.html
+        3: if called from library.html, books.html or book.html
+            return add_book.html rendered by render_template
+            with user, page_title, categories as args to display
+            add book form
+    """
+
     if 'username' not in login_session:
         return redirect(url_for('authorize'))
 
@@ -280,6 +338,23 @@ def addBook():
 
 @app.route('/library/<int:book_id>/edit', methods=['GET', 'POST'])
 def editBook(book_id):
+    """
+    editBook: displays a form to edit a book identified by book id
+        or updates the book and redirects to book.html
+    Args:
+        book_id (data type: int): the id of the book
+            to be edited
+    Returns:
+        1: user not logged in, redirect to login page
+        2: user logged in but not owner of the book: redirect to addBook
+        3: if called from edit_book.html (clicked on edit button)
+            update book in database with the values from the form
+            redirect to book.html
+        4: if called from book.html
+            return edit_book.html rendered by render_template
+            with user_name, page_title, categories, book as args to display
+            edit-book-form
+    """
     if 'username' not in login_session:
         return redirect(url_for('authorize'))
 
@@ -328,6 +403,23 @@ def editBook(book_id):
 
 @app.route('/library/<int:book_id>/delete', methods=['GET', 'POST'])
 def deleteBook(book_id):
+    """
+    delete: displays a delete confirmation page
+        to delete a book identified by book id
+        or deletes the book and redirects to library.html
+    Args:
+        book_id (data type: int): the id of the book
+            to be deleted
+    Returns:
+        1: user not logged in, redirect to login page
+        2: user logged in but not owner of the book: redirect to addBook
+        3: if called from delete_book.html (clicked on delete button)
+            delete book in database and redirect to library.html
+        4: if called from book.html
+            return delete_book.html rendered by render_template
+            with user_name, page_title, book as args to display
+            delete confirmation page
+    """
     if 'username' not in login_session:
         return redirect(url_for('authorize'))
     bookToDelete = session.query(Book).filter_by(book_id=book_id).one()
@@ -354,6 +446,12 @@ def deleteBook(book_id):
 # create a library dump with all categories and the related books
 @app.route('/library.json')
 def libraryJSON():
+    """
+    libraryJSON: create a library dump as json file
+        with all categories and the related books from the database
+    Returns:
+       json file with categories and the books for each category
+    """
 
     cats = session.query(Category).options(joinedload(Category.books)).all()
     categories = [dict(c.serialize,
@@ -366,24 +464,56 @@ def libraryJSON():
 
 @app.route('/library/<int:category_id>/books.json')
 def booksInCategoryJSON(category_id):
+    """
+    booksInCategoryJSON: get all the books for a specified category as json
+    Args:
+        category_id(data type: int): the id of the category of requested book
+    Returns:
+       json file with books for requested category
+    """
+
     books = session.query(Book).filter_by(category_id=category_id).all()
     return jsonify(Book=[b.serialize for b in books])
 
 
 @app.route('/library/<int:id>/booksOfUser.json')
 def booksOfUserJSON(id):
+    """
+    booksOfUserJSON: get all the books of a specified user as json
+    Args:
+        id(data type: int): the id of the owner the requested book
+    Returns:
+       json file with books of user
+    """
     books = session.query(Book).filter_by(user_id=id).all()
     return jsonify(Book=[b.serialize for b in books])
 
 
 @app.route('/library/<int:category_id>/<int:book_id>/book.json')
 def bookJSON(category_id, book_id):
+    """
+    bookJSON: get all the information of a specified book json
+    Args:
+        category_id(data type: int): the id of the category of requested book
+        book_id(data type: int): the id of the requested book
+    Returns:
+       json file with book information
+    """
+
     book = session.query(Book).filter_by(
         category_id=category_id, book_id=book_id).one()
     return jsonify(Book=book.serialize)
 
 
 def credentials_to_dict(credentials):
+    """
+    credentials_to_dict: helper method  for oauth2callback method
+    Args:
+        credentials: credentials object provided by google oauth
+    Returns:
+        dictionary with auth token params and values to store in login session
+    """
+
     return {'token': credentials.token,
             'refresh_token': credentials.refresh_token,
             'token_uri': credentials.token_uri,
@@ -398,4 +528,5 @@ if __name__ == '__main__':
     #  set a secret key to use flask sessions
     app.secret_key = os.urandom(24)
     app.debug = True
+    # run the app on http://localhost:8000
     app.run(host='0.0.0.0', port=8000)
