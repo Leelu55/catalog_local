@@ -2,7 +2,7 @@
 from models import Base, User, Category, Book
 
 # FLASK
-from flask import Flask, request, url_for, abort, g, redirect
+from flask import Flask, request, url_for, abort, g, redirect, flash
 from flask import jsonify, render_template
 from flask import make_response, session as login_session
 
@@ -285,6 +285,15 @@ def editBook(book_id):
 
     book = session.query(Book).filter_by(book_id=book_id).one()
 
+    # authorization check if the book belongs to the logged in user
+    # should not be called normally, as in the book template edit button
+    # is only shown to authorized user (if user and book.user_id == user.id)
+    if book.user_id != login_session['user_id']:
+        flash('You were successfully logged in \
+              BUT you are not allowed to edit or delete the books of others!\
+              Add your own book here.')
+        return redirect(url_for('addBook'))
+
     if request.method == 'POST':
 
         if request.form['title']:
@@ -322,6 +331,13 @@ def deleteBook(book_id):
     if 'username' not in login_session:
         return redirect(url_for('authorize'))
     bookToDelete = session.query(Book).filter_by(book_id=book_id).one()
+
+    # authorization check if the book to delete belongs to the logged in user
+    if bookToDelete.user_id != login_session['user_id']:
+        flash('You were successfully logged in \
+              BUT you are not allowed to edit or delete the books of others!\
+              Add your own book here.')
+        return redirect(url_for('addBook'))
 
     if request.method == 'POST':
         bookToDelete = session.query(Book).filter_by(book_id=book_id).one()
