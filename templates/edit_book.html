@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    {% include 'head.html' %}
+
+  </head>
+
+  <body>
+
+    {% include 'nav.html' %}
+
+    <div class="container section">
+      <div class="row">
+        <div class="col s6 offset-s3">
+
+          <div class= "row section ">
+            <div class="col s12">
+              <h5>Edit Book Details</h5>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-content">
+
+              <form action="#" method="post">
+
+                <div class="row">
+                  <div class="input-field col s10">
+                    <i class="material-icons prefix">title</i>
+                    <input value="{{book.title}}" name="title" id="title" type="text" class="validate"
+                    oninput= "changeBookTitleHandler()">
+                    <label for="title">Title</label>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="input-field col s10">
+                    <i class="material-icons prefix">image</i>
+                    <input value="{{ book.image}}" id="image" name="image" type="text" class="validate">
+                    <label for="image">Image</label>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="input-field col s10">
+                    <i class="material-icons prefix">description</i>
+                    <input value= "{{book.description}}" id="description" name="description" type="text" class="validate">
+                    <label for="description">Description</label>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="input-field col s10">
+                    <i class="material-icons prefix">account_circle</i>
+                    <input value="{{book.author}}" name="author" id="author_editor" type="text" class="validate">
+                    <label for="author">Author or Editor</label>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="input-field col">
+                    <div class="section">
+                      <div class="row">
+                        <div class="col">
+                          <i class="small material-icons left">apps</i>
+                          <span class="category">Category</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col s12 offset-s1">
+                        {% for category in categories%}
+                        <p>
+                          <label>
+                            <input class="with-gap" name="category" type="radio" id="{{category.id}}" value="{{category.id}}"
+                            {% if book.category_id == category.id %} checked {% endif %}/>
+                            <span>{{category.name}}</span>
+                          </label>
+                        </p>
+                        {% endfor %}
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class ="col">
+                     <button class="btn waves-effect blue" id="submit" type="submit" >
+                        <i class="material-icons left ">update</i>Update
+                      </button>
+                  </div>
+                  <div class="col">
+                    <a class="waves-effect orange btn" href = "{{url_for('showBook', book_id = book.book_id, category_id = book.category_id)}}"><i class="material-icons left">cancel</i>Cancel</a>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="/static/materialize/js/materialize.min.js"></script>
+  </body>
+</html>

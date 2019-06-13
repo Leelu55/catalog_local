@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include 'head.html' %}
+  </head>
+
+  <body>
+
+    {% include 'nav.html' %}
+
+    <div class="container">
+      <div class="section">
+        <div class="row green lighten-1">
+
+          <div class="section no-pad-bot">
+            <div class="row">
+              <div class="col s7 m4">
+                <h4>Categories</h4>
+              </div>
+            </div>
+          </div>
+
+            <div class="row">
+              {% for category in categories %}
+                  <a href="{{url_for('showBooksForCategory', category_id = category.id)}}">
+                    <div class="col m4">
+                      <div class="card">
+                        <div class="card-image">
+                          <img src="{{ url_for('static', filename= 'images/'+ category.image)}}" alt="image of {{category.name}} category">
+                          <a class="btn-floating halfway-fab waves-effect waves-light red" href="{{url_for('showBooksForCategory', category_id = category.id)}}"><i class="material-icons">apps</i></a>
+                        </div>
+                        <div class="card-content">
+                            <span class="card-title">{{category.name}}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+              {% endfor %}
+          </div>
+        </div>
+
+        <div class="row blue lighten-1">
+          <div class="section no-pad-bot">
+            <div class="row">
+              <div class="col s7 m4">
+                <h4>Recently Added Books</h4>
+              </div>
+            </div>
+          </div>
+          {% for recent_book in recent_books %}
+            <div class="col s7 m4">
+
+              <div class="card horizontal">
+
+                <div class="card-image">
+                  <img src="{{ url_for('static', filename= 'images/'+ recent_book.image) }}" >
+                </div>
+
+                <div class="card-stacked">
+                  <div class="card-content">
+                    <p style="color: grey">
+                      {% for category in categories %}
+                        {%if category.id == recent_book.category_id%}
+                          {{category.name}}
+                        {% endif %}
+                      {% endfor %}
+                    </p>
+                    <h6>{{recent_book.title}}</h6>
+                    <p>{{recent_book.author}}</p>
+                  </div>
+
+                  <div class="card-action">
+                    <div class="row">
+                      <div class="col">
+                        <a class="waves-effect teal btn" href = "{{url_for('showBook', book_id = recent_book.book_id, category_id = recent_book.category_id)}}"><i class="material-icons left">details</i>Details</a>
+                      </div>
+                      {% if user %}
+                        {% if user.id == recent_book.user_id%}
+                          <div class="col">
+                            <a class="waves-effect blue btn" href = "{{url_for('showBook', book_id = recent_book.book_id, category_id = recent_book.category_id)}}"><i class="material-icons left">edit</i></a>
+                          </div>
+                        {% endif %}
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    {% if user %}
+      <div class="fixed-action-btn">
+        <a class="btn-floating btn-large red" href="{{url_for('addBook')}}">
+        <i class="large material-icons">add</i>
+        </a>
+      </div>
+
+    {% endif %}
+
+    <!--JavaScript at end of body for optimized loading-->
+    <script type="text/javascript" src="/static/materialize/js/materialize.min.js"></script>
+  </body>
+</html>

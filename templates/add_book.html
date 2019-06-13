@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    {% include 'head.html' %}
+
+  </head>
+
+  <body>
+
+    {% include 'nav.html' %}
+
+    <div class="container section">
+      <div class="row">
+        <div class="col s6 offset-s3">
+          <div class= "row section ">
+            <div class="col s12">
+              <h5>Add new Book</h5>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-content">
+              <form action="#" method="post">
+
+                <div class="row">
+                  <div class="input-field col s11 ">
+                    <i class="material-icons prefix">title</i>
+                    <input name="title" id="title" type="text" class="validate" placeholder="Alice in Wonderland"
+                    oninput= "changeBookTitleHandler()">
+                    <label for="title">Title</label>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="input-field col s11">
+                    <i class="material-icons prefix">description</i>
+                    <input name="description" id="description" type="text" class="validate" placeholder="A wonderful Book about a girl lost in a crazy world.">
+                    <label for="description">Description</label>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="input-field col s11">
+                    <i class="material-icons prefix">account_circle</i>
+                    <input name="author_editor" id="author_editor" type="text" class="validate" placeholder="Lewis Carrol">
+                    <label for="author_editor">Author or Editor</label>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="input-field col s11">
+                    <i class="material-icons prefix">account_circle</i>
+                    <input name="image" id="image" type="text" class="validate" placeholder="Upload Pictures not yet implemented, only use of static content possible">
+                    <label for="image">Book Image</label>
+                  </div>
+                </div>
+
+
+                <div class="row">
+                  <div class="input-field col s4">
+
+                    <div class="row">
+                      <div class="col">
+                        <i class="small material-icons left">apps</i>
+                        <span class="category">Category</span>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col s12 offset-s1">
+                        {% for category in categories%}
+                        <p>
+                          <label>
+                            <input class="with-gap" name="category" type="radio" id="{{category.id}}" value="{{category.id}}"
+                            {% if category.id == 1 %} checked {% endif %}/>
+                            <span>{{category.name}}</span>
+                          </label>
+                        </p>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class ="col">
+                    <button class="btn waves-effect green" id="submit" type="submit">
+                        <i class="material-icons left">add</i>Create
+                    </button>
+                  </div>
+                  <div class ="col">
+                    <a class="waves-effect orange btn" href = "{{url_for('showLibrary')}}"><i class="material-icons left">cancel</i>Cancel</a>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--JavaScript at end of body for optimized loading-->
+    <script type="text/javascript" src="/static/materialize/js/materialize.min.js"></script>
+  </body>
+</html>

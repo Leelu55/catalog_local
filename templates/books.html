@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+       {% include 'head.html' %}
+
+    </head>
+
+    <body>
+
+      {% include 'nav.html' %}
+
+      <div class="container">
+        <div class="section">
+          <div class="row blue">
+            <div class="section no-pad-bot">
+              <div class="row">
+                <div class="col s12 m12">
+                  <h4>Books in {{category.name}}</h4>
+                </div>
+              </div>
+            </div>
+
+            {% for book in books %}
+              <div class="col s7 m4">
+                <div class="card horizontal">
+                  <div class="card-image">
+                    <img src="{{ url_for('static', filename= 'images/'+ book.image) }}">
+                  </div>
+
+                  <div class="card-stacked">
+                    <div class="card-content">
+                      <h6>{{book.title}}</h6>
+                      <p>{{book.author}}</p>
+                    </div>
+
+                    <div class="card-action">
+                      <div class="col">
+                        <a class="waves-effect teal btn" href = "{{url_for('showBook', book_id = book.book_id, category_id = book.category_id)}}"><i class="material-icons left">details</i>Info</a>
+                      </div>
+                      {% if user %}
+                        {% if user.id == book.user_id%}
+                          <div class="col">
+                            <a class="waves-effect blue btn" href = "{{url_for('showBook', book_id = book.book_id, category_id = book.category_id)}}"><i class="material-icons left">edit</i></a>
+                          </div>
+                        {% endif %}
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          {% if user %}
+            <div class="row green">
+
+              <div class="section  no-pad-bot">
+                <div class="row">
+                  <div class="col s12 ">
+                    <h4>{{user.name}}'s Books in {{category.name}}</h4>
+                  </div>
+                </div>
+              </div>
+
+              {% for book in user_books %}
+               <div class="col s7 m4">
+                  <div class="card horizontal">
+                    <div class="card-image">
+                      <img src="{{ url_for('static', filename= 'images/'+ book.image) }}">
+                    </div>
+
+                    <div class="card-stacked">
+                      <div class="card-content">
+                         <h6>{{book.title}}</h6>
+                          <p>{{book.author}}</p>
+                      </div>
+                    <div class="card-action">
+                        <div class="col">
+                          <a class="waves-effect teal btn" href = "{{url_for('showBook', book_id = book.book_id, category_id = book.category_id)}}"><i class="material-icons left">details</i>Info</a>
+                        </div>
+
+                        {% if user.id == book.user_id%}
+                          <div class="col">
+                            <a class="waves-effect blue btn" href = "{{url_for('showBook', book_id = book.book_id, category_id = book.category_id)}}"><i class="material-icons left">edit</i></a>
+                          </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if user %}
+        <div class="fixed-action-btn">
+            <a class="btn-floating btn-large red" href="{{url_for('addBook')}}">
+            <i class="large material-icons">add</i>
+            </a>
+        </div>
+      {% endif %}
+           <!--JavaScript at end of body for optimized loading-->
+      <script type="text/javascript" src="/static/materialize/js/materialize.min.js"></script>
+    </body>
+</html>
